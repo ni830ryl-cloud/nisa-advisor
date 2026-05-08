@@ -21,6 +21,9 @@ def apply_hard_filters(fund_master: pd.DataFrame) -> pd.DataFrame:
     df = fund_master.copy()
     thresholds = HARD_FILTER_THRESHOLDS
 
+    # NISA成長投資枠対象外を除外
+    df = df[df["is_nisa_growth_eligible"].fillna(False)]
+
     # レバレッジ型を除外
     df = df[~df["is_leveraged"].fillna(False)]
 
