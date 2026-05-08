@@ -1,5 +1,13 @@
 """NISA成長投資枠 ファンド推奨ツール - メインエントリーポイント"""
 
+import os
+import sys
+
+# Streamlit Cloud対応: プロジェクトルートをsys.pathに追加
+_project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 import streamlit as st
 
 st.set_page_config(
