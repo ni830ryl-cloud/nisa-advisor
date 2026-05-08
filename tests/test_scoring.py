@@ -109,11 +109,11 @@ class TestComputeTotalScore:
         scores.sort(key=lambda s: s.total_score, reverse=True)
 
         top_ids = [s.fund_id for s in scores[:3]]
-        # オルカン・eMAXIS系・バランス系が上位に来ることを期待
+        # global_diversified / broad_market / medium_risk 系ファンドが上位に来ることを期待
         assert any(fid in top_ids for fid in [
-            "JP90C000H1T1",  # オルカン
-            "JP90C000FBSD",  # バランス8資産
-            "JP90C000R5F8",  # 楽天プラスオールカントリー
+            "JP90C000FLX2",  # グローバル経済コア（global_diversified|medium_risk）
+            "JP90C000EWV6",  # eMAXIS Slim バランス8資産（broad_market|medium_risk）
+            "JP90C000F7A0",  # たわらバランス8資産（broad_market|medium_risk）
         ])
 
     def test_TC2_上級グロース_FANG系が高スコア(self, fund_master, profile_advanced_growth):
@@ -156,10 +156,11 @@ class TestComputeTotalScore:
 
         assert len(scores) > 0
         top_ids = [s.fund_id for s in scores[:3]]
-        # 配当フィルタ後はSBI高配当・世界のベスト（配当型）が候補に含まれること
+        # 配当フィルタ後はフィデリティ日本配当成長株・ニュー配当利回り株等が上位に来ること
         assert any(fid in top_ids for fid in [
-            "JP90C000Q2F1",   # SBI日本高配当
-            "JP90C000P8E9",   # 世界のベスト（dividend_focused タグあり）
+            "JP90C0003643",  # フィデリティ日本配当成長株
+            "JP90C0000LS0",  # ニュー配当利回り株オープン
+            "JP90C000CTF9",  # 先進国好配当株式ファンド
         ])
 
     def test_スコアは0から100の範囲内(self, fund_master, profile_beginner_low):

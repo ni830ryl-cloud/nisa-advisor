@@ -154,6 +154,8 @@ def _compute_growth_value_score(tags: list[str]) -> float:
     """哲学タグからグロース-バリュースコア（1=バリュー, 10=グロース）を推定する"""
     if "growth_focused" in tags:
         return 9.0
+    elif "tech_heavy" in tags:
+        return 8.0
     elif "dividend_focused" in tags or "value_focused" in tags:
         return 2.0
     elif "broad_market" in tags:

@@ -164,13 +164,10 @@ def compute_stddev_penalty(fund: dict, profile: UserProfile) -> float:
     Returns:
         0-100のペナルティ値（大きいほど不利）
     """
-    stddev = (
-        fund.get("stddev_5y")
-        or fund.get("stddev_3y")
-        or fund.get("stddev_1y")
-    )
+    # _coalesce で NaN を正しくスキップする（NaN は or 演算で truthy のため直接使えない）
+    stddev = _coalesce(fund, "stddev_5y", "stddev_3y", "stddev_1y")
 
-    if stddev is None or _is_nan(stddev):
+    if stddev is None:
         return 0.0
 
     stddev = float(stddev)

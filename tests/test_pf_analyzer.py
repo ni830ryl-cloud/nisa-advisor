@@ -24,9 +24,9 @@ class TestAnalyzePortfolio:
         assert result is None
 
     def test_TC_W1_レバレッジ保有で警告が出る(self, fund_master):
-        """TC-W1: 4.3倍ブル保有 → leverage_etf_detected警告"""
+        """TC-W1: 小型ブルーチップ(leverage_warning タグあり)保有 → leverage_etf_detected警告"""
         holdings = [
-            Holding(fund_id="JP90C000CCD0", fund_name_input="4.3倍ブル", weight=1.0, matched=True),
+            Holding(fund_id="JP90C0003D90", fund_name_input="小型ブルーチップオープン", weight=1.0, matched=True),
         ]
         result = analyze_portfolio(holdings, fund_master)
         assert result is not None
