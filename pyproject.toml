@@ -1,0 +1,32 @@
+[project]
+name = "nisa-advisor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=3.0.2",
+    "pydantic>=2.13.4",
+    "rapidfuzz>=3.14.5",
+    "streamlit>=1.57.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.0.0",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.12",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
