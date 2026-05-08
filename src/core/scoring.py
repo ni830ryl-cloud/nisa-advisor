@@ -7,6 +7,7 @@ from src.models.user_profile import UserProfile
 from src.utils.constants import (
     DEFAULT_SCORE_ON_MISSING_DATA,
     HORIZON_COEF,
+    LOSS_REACTION_COEF,
     TOLERANCE_COEF,
     WEIGHTS,
 )
@@ -188,7 +189,12 @@ def compute_stddev_penalty(fund: dict, profile: UserProfile) -> float:
         raw_penalty = 90.0
 
     horizon_coef = HORIZON_COEF.get(profile.horizon or "5_10", 1.0)
-    tolerance_coef = TOLERANCE_COEF.get(profile.drawdown_tolerance or "low", 1.0)
+
+    # loss_reactionが回答済みの場合は優先、未回答時はdrawdown_toleranceにフォールバック
+    if profile.loss_reaction is not None:
+        tolerance_coef = LOSS_REACTION_COEF.get(profile.loss_reaction, 0.5)
+    else:
+        tolerance_coef = TOLERANCE_COEF.get(profile.drawdown_tolerance or "low", 1.0)
 
     return raw_penalty * horizon_coef * tolerance_coef
 

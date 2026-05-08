@@ -1,4 +1,4 @@
-"""Layer 1-A/1-B: 経験判定 + 5問プロファイリング画面"""
+"""Layer 1-A/1-B: 経験判定 + 8問プロファイリング画面"""
 
 import streamlit as st
 
@@ -8,7 +8,6 @@ _EXPERIENCE_OPTIONS = [
     "経験あり・現在も保有中",
     "過去に経験あり・現在は保有なし",
 ]
-
 _EXPERIENCE_VALUES = ["none", "current_holder", "past_holder"]
 
 _HORIZON_OPTIONS = [
@@ -49,9 +48,37 @@ _STYLE_OPTIONS = [
 ]
 _STYLE_VALUES = ["growth", "dividend", "balanced", "index_auto"]
 
+# 追加問: 投資目的
+_GOAL_OPTIONS = [
+    "老後資金（ゆとりある老後のために積み立てたい）",
+    "教育費（子どもの進学資金を準備したい）",
+    "FIRE・経済的自立（早期に労働収入に頼らない生活を目指す）",
+    "資産形成全般（特定の目的はなく、着実に増やしたい）",
+    "配当収入（毎月・毎年の収入として受け取りたい）",
+]
+_GOAL_VALUES = ["retirement", "education", "fire", "asset_building", "dividend_income"]
+
+# 追加問: ライフステージ
+_LIFE_STAGE_OPTIONS = [
+    "20代・独身（まずは長期積立のスタート）",
+    "30代・子育て中（教育費と資産形成を両立したい）",
+    "40代・安定期（収入は安定、老後準備を本格化）",
+    "50代以上（定年が見えてきた・守りに入りたい）",
+]
+_LIFE_STAGE_VALUES = ["20s_single", "30s_family", "40s_stable", "50s_plus"]
+
+# 追加問: 損失時の感情反応ラベル
+_LOSS_REACTION_LABELS = {
+    1: "1 — すぐ売りたくなる（損失が怖い）",
+    2: "2 — かなり不安になる",
+    3: "3 — 様子を見て判断する",
+    4: "4 — ある程度冷静でいられる",
+    5: "5 — 買い増しのチャンスと思える",
+}
+
 
 def render() -> None:
-    """経験判定と5問プロファイリングを表示する"""
+    """経験判定と8問プロファイリングを表示する"""
     if not st.session_state.get("consent"):
         st.warning("先に免責事項への同意が必要です。")
         if st.button("最初に戻る"):
@@ -76,7 +103,7 @@ def render() -> None:
 
     st.write("---")
 
-    # ステップ 2: 5問
+    # ステップ 2: 基本5問
     st.subheader("ステップ 2/3: 投資スタイル（5問）")
 
     q1 = st.radio(
@@ -121,14 +148,47 @@ def render() -> None:
 
     st.write("---")
 
+    # ステップ 3: 心情・ライフステージ（3問）
+    st.subheader("ステップ 3/3: あなたの心情・ライフステージ（3問）")
+    st.caption("より精度の高い提案のために、あなたの状況を教えてください。")
+
+    q6 = st.radio(
+        "Q6: この投資を通じて**最も達成したいこと**は何ですか？",
+        options=range(len(_GOAL_OPTIONS)),
+        format_func=lambda i: _GOAL_OPTIONS[i],
+        key="q6_goal",
+        help="💡 目的によって、短期の安定性か長期の成長性かの優先度が変わります",
+    )
+
+    q7 = st.radio(
+        "Q7: 現在のライフステージを教えてください。",
+        options=range(len(_LIFE_STAGE_OPTIONS)),
+        format_func=lambda i: _LIFE_STAGE_OPTIONS[i],
+        key="q7_life_stage",
+        help="💡 ライフステージによって、適切なリスク水準と投資期間が変わります",
+    )
+
+    q8 = st.select_slider(
+        "Q8: 保有ファンドが**20%下落**したとき、あなたはどう感じますか？",
+        options=list(_LOSS_REACTION_LABELS.keys()),
+        format_func=lambda v: _LOSS_REACTION_LABELS[v],
+        value=3,
+        key="q8_loss_reaction",
+        help="💡 感情的な反応は行動リスク（最悪のタイミングで売ること）と直結します",
+    )
+
+    st.write("---")
+
     if st.button("次へ進む", type="primary"):
-        # セッションステートに保存
         st.session_state.experience = _EXPERIENCE_VALUES[experience_idx]
         st.session_state.horizon = _HORIZON_VALUES[q1]
         st.session_state.drawdown_tolerance = _DRAWDOWN_VALUES[q2]
         st.session_state.return_expectation = _RETURN_VALUES[q3]
         st.session_state.region_preference = _REGION_VALUES[q4]
         st.session_state.style_preference = _STYLE_VALUES[q5]
+        st.session_state.investment_goal = _GOAL_VALUES[q6]
+        st.session_state.life_stage = _LIFE_STAGE_VALUES[q7]
+        st.session_state.loss_reaction = int(q8)
 
         experience_val = _EXPERIENCE_VALUES[experience_idx]
         if experience_val == "current_holder":

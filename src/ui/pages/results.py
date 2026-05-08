@@ -17,6 +17,12 @@ _USER_TYPE_LABELS = {
     "intermediate_balanced": "中級・バランス型",
     "dividend_focused": "配当重視型",
     "advanced_long_growth": "上級・長期グロース志向型",
+    "retirement_security": "老後安心型",
+    "education_stable": "教育費積立型",
+    "fire_growth": "FIRE志向型",
+    "preservation_late": "資産保全型（守り）",
+    "young_aggressive": "若年積極型",
+    "intermediate_growth": "中堅成長型",
 }
 
 _HORIZON_LABELS = {
@@ -106,7 +112,8 @@ def render() -> None:
     # やり直しボタン
     if st.button("条件を変えて再診断"):
         for key in ["experience", "horizon", "drawdown_tolerance", "return_expectation",
-                    "region_preference", "style_preference", "holdings", "pf_analysis", "results"]:
+                    "region_preference", "style_preference", "investment_goal", "life_stage",
+                    "loss_reaction", "holdings", "pf_analysis", "results"]:
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state.current_page = "profiling"
@@ -124,6 +131,9 @@ def _build_profile_from_session() -> UserProfile | None:
             return_expectation=st.session_state.get("return_expectation"),
             region_preference=st.session_state.get("region_preference"),
             style_preference=st.session_state.get("style_preference"),
+            investment_goal=st.session_state.get("investment_goal"),
+            life_stage=st.session_state.get("life_stage"),
+            loss_reaction=st.session_state.get("loss_reaction"),
             current_holdings=st.session_state.get("holdings", []),
         )
     except Exception:
@@ -146,12 +156,39 @@ def _render_profile_summary(
     user_type = determine_user_type(profile)
     type_label = _USER_TYPE_LABELS.get(user_type, user_type)
 
+    _GOAL_LABELS = {
+        "retirement": "老後資金",
+        "education": "教育費",
+        "fire": "FIRE・経済的自立",
+        "asset_building": "資産形成全般",
+        "dividend_income": "配当収入",
+    }
+    _LIFE_STAGE_LABELS = {
+        "20s_single": "20代・独身",
+        "30s_family": "30代・子育て中",
+        "40s_stable": "40代・安定期",
+        "50s_plus": "50代以上",
+    }
+    _LOSS_LABELS = {
+        1: "1（すぐ売りたくなる）",
+        2: "2（かなり不安）",
+        3: "3（様子を見る）",
+        4: "4（冷静でいられる）",
+        5: "5（買い増しチャンス）",
+    }
+
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"**推定タイプ:** {type_label}")
         st.markdown(f"**投資期間:** {_HORIZON_LABELS.get(profile.horizon or '', '-')}")
         st.markdown(f"**下落耐性:** {_DRAWDOWN_LABELS.get(profile.drawdown_tolerance or '', '-')}")
         st.markdown(f"**運用スタイル:** {_STYLE_LABELS.get(profile.style_preference or '', '-')}")
+        if profile.investment_goal:
+            st.markdown(f"**投資目的:** {_GOAL_LABELS.get(profile.investment_goal, '-')}")
+        if profile.life_stage:
+            st.markdown(f"**ライフステージ:** {_LIFE_STAGE_LABELS.get(profile.life_stage, '-')}")
+        if profile.loss_reaction:
+            st.markdown(f"**損失時の反応:** {_LOSS_LABELS.get(profile.loss_reaction, '-')}")
 
     if pf_analysis and holdings:
         with col2:

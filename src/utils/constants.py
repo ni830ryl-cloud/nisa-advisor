@@ -13,45 +13,57 @@ HARD_FILTER_THRESHOLDS: Final[dict] = {
 # ユーザータイプ別スコアリング重み
 # α=リターン, β=シャープ, γ=ファンドスコア, δ=コスト, ε=規模, ζ=ペナルティ係数
 WEIGHTS: Final[dict] = {
+    # --- 既存5種（後方互換） ---
     "beginner_low_risk": {
-        "alpha": 0.15,
-        "beta": 0.20,
-        "gamma": 0.10,
-        "delta": 0.30,
-        "epsilon": 0.15,
-        "zeta": 1.00,
+        "alpha": 0.15, "beta": 0.20, "gamma": 0.10,
+        "delta": 0.30, "epsilon": 0.15, "zeta": 1.00,
     },
     "index_auto": {
-        "alpha": 0.20,
-        "beta": 0.15,
-        "gamma": 0.05,
-        "delta": 0.35,
-        "epsilon": 0.20,
-        "zeta": 0.70,
+        "alpha": 0.20, "beta": 0.15, "gamma": 0.05,
+        "delta": 0.35, "epsilon": 0.20, "zeta": 0.70,
     },
     "intermediate_balanced": {
-        "alpha": 0.25,
-        "beta": 0.20,
-        "gamma": 0.20,
-        "delta": 0.15,
-        "epsilon": 0.10,
-        "zeta": 0.80,
+        "alpha": 0.25, "beta": 0.20, "gamma": 0.20,
+        "delta": 0.15, "epsilon": 0.10, "zeta": 0.80,
     },
     "dividend_focused": {
-        "alpha": 0.20,
-        "beta": 0.20,
-        "gamma": 0.20,
-        "delta": 0.15,
-        "epsilon": 0.20,
-        "zeta": 0.60,
+        "alpha": 0.20, "beta": 0.20, "gamma": 0.20,
+        "delta": 0.15, "epsilon": 0.20, "zeta": 0.60,
     },
     "advanced_long_growth": {
-        "alpha": 0.45,
-        "beta": 0.10,
-        "gamma": 0.20,
-        "delta": 0.10,
-        "epsilon": 0.05,
-        "zeta": 0.10,
+        "alpha": 0.45, "beta": 0.10, "gamma": 0.20,
+        "delta": 0.10, "epsilon": 0.05, "zeta": 0.10,
+    },
+    # --- 心情プロファイリング追加5種 ---
+    # 老後安心型: シャープ↑・コスト↑・ペナルティ強め
+    "retirement_security": {
+        "alpha": 0.20, "beta": 0.25, "gamma": 0.15,
+        "delta": 0.20, "epsilon": 0.15, "zeta": 0.90,
+    },
+    # 教育費積立型: シャープ↑↑・ペナルティ強（使う時期が決まっている）
+    "education_stable": {
+        "alpha": 0.15, "beta": 0.30, "gamma": 0.15,
+        "delta": 0.20, "epsilon": 0.15, "zeta": 0.95,
+    },
+    # FIRE志向型: リターン↑↑・超長期でペナルティほぼ無視
+    "fire_growth": {
+        "alpha": 0.50, "beta": 0.10, "gamma": 0.15,
+        "delta": 0.10, "epsilon": 0.05, "zeta": 0.05,
+    },
+    # 資産保全型（50代以上・守り）: シャープ↑↑↑・ペナルティ最大
+    "preservation_late": {
+        "alpha": 0.10, "beta": 0.30, "gamma": 0.10,
+        "delta": 0.25, "epsilon": 0.15, "zeta": 1.20,
+    },
+    # 若年積極型: リターン↑↑・長期なのでペナルティ軽め
+    "young_aggressive": {
+        "alpha": 0.45, "beta": 0.10, "gamma": 0.15,
+        "delta": 0.15, "epsilon": 0.05, "zeta": 0.15,
+    },
+    # 中堅成長型: バランス良くリターン寄り
+    "intermediate_growth": {
+        "alpha": 0.35, "beta": 0.15, "gamma": 0.20,
+        "delta": 0.15, "epsilon": 0.10, "zeta": 0.50,
     },
 }
 
@@ -67,6 +79,15 @@ TOLERANCE_COEF: Final[dict] = {
     "low": 1.0,
     "medium": 0.5,
     "high": 0.0,
+}
+
+# 損失反応スライダー係数（1=パニック売り … 5=買い増しチャンス）
+LOSS_REACTION_COEF: Final[dict] = {
+    1: 1.0,
+    2: 0.8,
+    3: 0.5,
+    4: 0.25,
+    5: 0.0,
 }
 
 # UI定数

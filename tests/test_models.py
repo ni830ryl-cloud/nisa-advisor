@@ -33,6 +33,9 @@ class TestUserProfile:
             return_expectation="modest",
             region_preference="world",
             style_preference="index_auto",
+            investment_goal="asset_building",
+            life_stage="30s_family",
+            loss_reaction=3,
         )
         assert p.is_profile_complete()
         assert not p.is_experienced()
@@ -46,6 +49,9 @@ class TestUserProfile:
             return_expectation="market",
             region_preference="us",
             style_preference="balanced",
+            investment_goal="retirement",
+            life_stage="40s_stable",
+            loss_reaction=3,
         )
         assert p.is_experienced()
 
