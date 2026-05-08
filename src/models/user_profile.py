@@ -37,6 +37,11 @@ class UserProfile(BaseModel):
     loss_reaction: int | None = Field(default=None, ge=1, le=5)
     # 1=パニックして売りたい … 5=買い増しのチャンスと思える
 
+    # Layer 1-B（経験者のみ・分岐質問）
+    current_style: Literal[
+        "index_heavy", "active_heavy", "individual_stocks", "mixed"
+    ] | None = None
+
     # Layer 1-C（経験者のみ）
     current_holdings: list[Holding] = Field(default_factory=list)
 

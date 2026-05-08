@@ -50,8 +50,10 @@ def determine_user_type(profile: UserProfile) -> str:
     if experience == "none" and loss_reaction <= 2:
         return "beginner_low_risk"
 
-    # インデックスおまかせ
+    # インデックスおまかせ（既存インデックス保有者も含む）
     if style == "index_auto":
+        return "index_auto"
+    if profile.current_style == "index_heavy" and experience == "current_holder":
         return "index_auto"
 
     # 上級長期成長（旧来のhigh/20+判定を維持）

@@ -18,18 +18,26 @@ _HORIZON_OPTIONS = [
 _HORIZON_VALUES = ["5_10", "10_20", "20_plus"]
 
 _DRAWDOWN_OPTIONS = [
-    "不安・10%下落でも気になる（安定性を重視）",
-    "-30%程度なら持ち続けられる（ある程度の変動は受け入れる）",
-    "-50%でも長期目線で保有を続けられる（短期変動は気にしない）",
+    "😱 なるべく早く売りたい（損失が怖い）",
+    "😐 不安だが保有を続ける（様子を見る）",
+    "💪 むしろ買い増しのチャンスと思う",
 ]
 _DRAWDOWN_VALUES = ["low", "medium", "high"]
 
 _RETURN_OPTIONS = [
-    "インフレに負けなければ十分（年3〜5%）",
-    "市場平均並み（年5〜7%）",
-    "市場平均を超えたい（年8%以上）",
+    "約150万円（年率4%相当）でも満足",
+    "約200万円（年率7%相当）を目指したい",
+    "300万円以上（年率12%超）を狙いたい",
 ]
 _RETURN_VALUES = ["modest", "market", "above_market"]
+
+_CURRENT_STYLE_OPTIONS = [
+    "📊 インデックスファンド中心（低コスト・市場連動）",
+    "🔍 アクティブファンド中心（運用会社の銘柄選択に期待）",
+    "📈 個別株・ETF中心（自分で銘柄を選ぶ）",
+    "🔀 バラバラ・わからない",
+]
+_CURRENT_STYLE_VALUES = ["index_heavy", "active_heavy", "individual_stocks", "mixed"]
 
 _REGION_OPTIONS = [
     "日本中心（自国経済を重視、為替リスクを抑えたい）",
@@ -101,6 +109,16 @@ def render() -> None:
         key="experience_radio",
     )
 
+    current_style_idx = None
+    if _EXPERIENCE_VALUES[experience_idx] == "current_holder":
+        st.info("📂 現在も保有中とのこと。今の運用スタイルを教えてください。")
+        current_style_idx = st.radio(
+            "Q0: 現在の**主な保有スタイル**は？",
+            options=range(len(_CURRENT_STYLE_OPTIONS)),
+            format_func=lambda i: _CURRENT_STYLE_OPTIONS[i],
+            key="q0_current_style",
+        )
+
     st.write("---")
 
     # ステップ 2: 基本5問
@@ -115,15 +133,15 @@ def render() -> None:
     )
 
     q2 = st.radio(
-        "Q2: 投資したお金が一時的に**半分になっても**、保有を続けられますか？",
+        "Q2: 100万円を投資して、**75万円（−25%）に下落**したとしたら？",
         options=range(len(_DRAWDOWN_OPTIONS)),
         format_func=lambda i: _DRAWDOWN_OPTIONS[i],
         key="q2_drawdown",
-        help="💡 ここでの選択が、提案されるファンドのリスクレベルに大きく影響します",
+        help="💡 実際の行動パターンが、提案されるファンドのリスクレベルに大きく影響します",
     )
 
     q3 = st.radio(
-        "Q3: どのくらいのリターンを期待しますか？",
+        "Q3: 10年後、100万円が**いくらになっていれば満足**ですか？",
         options=range(len(_RETURN_OPTIONS)),
         format_func=lambda i: _RETURN_OPTIONS[i],
         key="q3_return",
@@ -181,6 +199,10 @@ def render() -> None:
 
     if st.button("次へ進む", type="primary"):
         st.session_state.experience = _EXPERIENCE_VALUES[experience_idx]
+        st.session_state.current_style = (
+            _CURRENT_STYLE_VALUES[current_style_idx]
+            if current_style_idx is not None else None
+        )
         st.session_state.horizon = _HORIZON_VALUES[q1]
         st.session_state.drawdown_tolerance = _DRAWDOWN_VALUES[q2]
         st.session_state.return_expectation = _RETURN_VALUES[q3]

@@ -111,9 +111,10 @@ def render() -> None:
 
     # やり直しボタン
     if st.button("条件を変えて再診断"):
-        for key in ["experience", "horizon", "drawdown_tolerance", "return_expectation",
-                    "region_preference", "style_preference", "investment_goal", "life_stage",
-                    "loss_reaction", "holdings", "pf_analysis", "results"]:
+        for key in ["experience", "current_style", "horizon", "drawdown_tolerance",
+                    "return_expectation", "region_preference", "style_preference",
+                    "investment_goal", "life_stage", "loss_reaction",
+                    "holdings", "pf_analysis", "results"]:
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state.current_page = "profiling"
@@ -134,6 +135,7 @@ def _build_profile_from_session() -> UserProfile | None:
             investment_goal=st.session_state.get("investment_goal"),
             life_stage=st.session_state.get("life_stage"),
             loss_reaction=st.session_state.get("loss_reaction"),
+            current_style=st.session_state.get("current_style"),
             current_holdings=st.session_state.get("holdings", []),
         )
     except Exception:

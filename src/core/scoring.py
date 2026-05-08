@@ -196,6 +196,46 @@ def compute_stddev_penalty(fund: dict, profile: UserProfile) -> float:
     return raw_penalty * horizon_coef * tolerance_coef
 
 
+def _blend_weights(profile: UserProfile, user_type: str) -> dict:
+    """
+    loss_reaction と current_style に基づいてペルソナ重みを連続調整する。
+    ペルソナ境界でのスコア急変を防ぎ、プロファイルの連続性を反映する。
+    """
+    base = dict(WEIGHTS[user_type])
+
+    if profile.loss_reaction is not None:
+        # loss_reaction を 0.0（最低耐性）〜 1.0（最高耐性）に正規化
+        lr = (profile.loss_reaction - 1) / 4.0
+
+        # zeta: 低耐性で1.4x、高耐性で0.6x に連続変化
+        base["zeta"] = base["zeta"] * (1.4 - 0.8 * lr)
+        # alpha: 高耐性ほどリターン重視に
+        base["alpha"] = base["alpha"] * (0.85 + 0.3 * lr)
+        # delta: 低耐性ほどコスト重視（慎重な選択）
+        base["delta"] = base["delta"] * (1.15 - 0.3 * lr)
+
+        # 正規化: alpha+beta+gamma+delta+epsilon の合計を元のペルソナ値に揃える
+        orig = WEIGHTS[user_type]
+        orig_sum = sum(orig[k] for k in ["alpha", "beta", "gamma", "delta", "epsilon"])
+        new_sum = sum(base[k] for k in ["alpha", "beta", "gamma", "delta", "epsilon"])
+        if new_sum > 0:
+            f = orig_sum / new_sum
+            for k in ["alpha", "beta", "gamma", "delta", "epsilon"]:
+                base[k] = base[k] * f
+
+    # current_style による追加調整（経験者の保有スタイル反映）
+    if profile.current_style == "index_heavy":
+        # インデックス中心 → コスト重視・ファンドスコア重み軽減
+        base["delta"] = min(0.50, base["delta"] * 1.20)
+        base["gamma"] = max(0.03, base["gamma"] * 0.70)
+    elif profile.current_style == "active_heavy":
+        # アクティブ中心 → ファンドスコア・リターン重視
+        base["gamma"] = min(0.40, base["gamma"] * 1.30)
+        base["alpha"] = min(0.55, base["alpha"] * 1.10)
+
+    return base
+
+
 def compute_total_score(
     fund: dict,
     profile: UserProfile,
@@ -206,7 +246,7 @@ def compute_total_score(
     ユーザータイプに応じた動的重みを適用する。
     """
     user_type = determine_user_type(profile)
-    weights = WEIGHTS[user_type]
+    weights = _blend_weights(profile, user_type)
 
     horizon = profile.horizon or "5_10"
 
